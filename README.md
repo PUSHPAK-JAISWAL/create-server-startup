@@ -1,9 +1,5 @@
 # create-server-startup
 
-[![npm](https://img.shields.io/npm/v/create-server-startup)](https://www.npmjs.com/package/create-server-startup)  
-[![License](https://img.shields.io/github/license/stakbase/create-server-startup)](https://github.com/stakbase/create-server-startup/blob/main/LICENSE)  
-[![Node.js CI](https://img.shields.io/github/actions/workflow/status/stakbase/create-server-startup/nodejs.yml)](https://github.com/stakbase/create-server-startup/actions)
-
 A powerful CLI tool by **Stakbase** to **scaffold production‑ready Node.js backend projects** in seconds — with support for JavaScript or TypeScript, popular databases, and JWT‑based security options.
 
 ---
