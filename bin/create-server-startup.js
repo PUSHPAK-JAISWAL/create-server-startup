@@ -21,13 +21,13 @@ async function displayAnimatedBanner() {
     gradient.teen,
     gradient.mind
   ];
-  
+
   const spinner = ora({
     text: 'Initializing CREATE-SERVER-STARTUP',
     spinner: 'dots',
     color: 'cyan'
   }).start();
-  
+
   // Create animation sequence
   for (let i = 0; i < 5; i++) {
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -41,7 +41,7 @@ async function displayAnimatedBanner() {
       })
     );
   }
-  
+
   spinner.succeed(gradient.passion('\n🚀 Create a production-ready Node.js server in seconds!\n'));
 }
 
@@ -56,10 +56,10 @@ const questions = [
   {
     type: 'list',
     name: 'language',
-    message: `${chalk.blue('➤ JavaScript or TypeScript?')}`,
+    message: `${chalk.blue('➤ JavaScript ?')}`,
     choices: [
       { name: `${chalk.green('JavaScript')}`, value: 'js' },
-      { name: `${chalk.cyan('TypeScript')}`, value: 'ts' }
+      // { name: `${chalk.cyan('TypeScript')}`, value: 'ts' }
     ],
     default: 'js'
   },
@@ -93,39 +93,39 @@ async function main() {
   try {
     // Display animated banner
     await displayAnimatedBanner();
-    
+
     const answers = await inquirer.prompt(questions);
     const spinner = createSpinner('Creating project...').start();
     const projectPath = path.resolve(process.cwd(), answers.projectName);
-    
+
     if (fs.existsSync(projectPath)) {
       spinner.error({ text: `Directory "${answers.projectName}" already exists!` });
       return;
     }
-    
+
     await fs.ensureDir(projectPath);
     await createProjectStructure(projectPath, answers);
     spinner.success({ text: 'Project structure created' });
-    
+
     const installSpinner = createSpinner('Installing dependencies...').start();
     await installDependencies(projectPath, answers);
     installSpinner.success({ text: 'Dependencies installed' });
-    
+
     console.log(chalk.greenBright(`\n✅ Project created successfully at ${projectPath}`));
     console.log(chalk.yellow('\nNext steps:'));
     console.log(`cd ${answers.projectName}`);
-    
+
     if (answers.database !== 'none') {
       console.log(chalk.yellow('\nSet your database connection:'));
       console.log('Edit .env file and add:');
       console.log(`DATABASE_URL="your_${answers.database}_connection_string"`);
     }
-    
+
     console.log(chalk.yellow('\nStart the server:'));
     console.log(answers.language === 'ts' ? 'npm run dev' : 'npm start');
     console.log(chalk.yellow('\nTest the health endpoint:'));
     console.log('curl http://localhost:3000/api/v1/health');
-    
+
   } catch (error) {
     if (error.message !== 'cancelled') {
       console.error(chalk.red(`\n❌ Error: ${error.message}`));
@@ -145,15 +145,15 @@ async function createProjectStructure(projectPath, answers) {
     'src/services',
     'src/utils'
   ];
-  
+
   if (answers.database !== 'none') {
     dirs.push('src/db', 'src/models', 'src/repositories');
   }
-  
+
   for (const dir of dirs) {
     await fs.ensureDir(path.join(projectPath, dir));
   }
-  
+
   await createPackageJson(projectPath, answers);
   await createEnvExample(projectPath, answers);
   await createGitIgnore(projectPath);
@@ -163,15 +163,25 @@ async function createProjectStructure(projectPath, answers) {
   await createLogger(projectPath, answers);
   await createHealthCheck(projectPath, answers);
   await createErrorMiddleware(projectPath, answers);
-  
+
   if (answers.database !== 'none') {
     await createDbUtils(projectPath, answers);
   }
-  
+
   if (answers.security !== 'none') {
     await createSecurityFiles(projectPath, answers);
+  } else {
+    const ext = answers.language;
+    const appFilePath = path.join(projectPath, 'src', `app.${ext}`);
+    let appContent = await fs.readFile(appFilePath, 'utf-8');
+
+    appContent = appContent.replace(
+      `'import authRouter from './routes/v1/auth.routes.js';'`,
+      ''
+    );
+    await fs.writeFile(appFilePath, appContent);
   }
-  
+
   if (answers.language === 'ts') {
     await createTsConfig(projectPath);
   }
@@ -194,7 +204,7 @@ async function createTsConfig(projectPath) {
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules", "dist"]
   };
-  
+
   await fs.writeJson(path.join(projectPath, 'tsconfig.json'), tsconfig, { spaces: 2 });
 }
 
@@ -250,7 +260,7 @@ async function createPackageJson(projectPath, answers) {
     pkg.scripts = {
       ...pkg.scripts,
       build: 'tsc',
-      start: 'node dist/server.js',
+      start: 'nodemon server.ts',
       dev: 'nodemon --watch server.ts --ext ts --exec "node --loader ts-node/esm server.ts"'
     };
 
@@ -259,27 +269,27 @@ async function createPackageJson(projectPath, answers) {
       'ts-node': 'latest',
       nodemon: 'latest',
       '@types/node': 'latest',
-      '@types/express': 'latest'
+      '@types/express': 'latest',
+      '@types/cors': 'latest',
+      '@types/pg': 'latest',
     };
+    pkg.dependencies.mongoose = 'latest';
+    pkg.dependencies.pg = 'latest';
+    pkg.dependencies.mysql2 = 'latest';
+    pkg.dependencies.sqlite3 = 'latest';
+    pkg.dependencies.cors = 'latest';
 
     // add type defs for security
     if (answers.security === 'jwt') {
       pkg.devDependencies['@types/jsonwebtoken'] = 'latest';
       pkg.devDependencies['@types/bcryptjs'] = 'latest';
     }
-
-    // add type defs for DB
-    if (answers.database === 'mongodb') {
-      pkg.devDependencies['@types/mongoose'] = 'latest';
-    } else if (answers.database === 'postgres') {
-      pkg.devDependencies['@types/pg'] = 'latest';
-    }
   } else {
     // JS configuration
     pkg.main = 'server.js';
     pkg.scripts = {
       ...pkg.scripts,
-      start: 'node server.js',
+      start: 'nodemon server.js',
       dev: 'nodemon --watch server.js --exec "node server.js"'
     };
     pkg.devDependencies.nodemon = 'latest';
@@ -293,19 +303,19 @@ async function createEnvExample(projectPath, answers) {
 PORT=3000
 NODE_ENV=development
 `;
-  
+
   if (answers.database !== 'none') {
     content += `\n# Database configuration
 DATABASE_URL=\n`;
   }
-  
+
   if (answers.security === 'jwt') {
     content += `\n# JWT configuration
 JWT_SECRET=your_jwt_secret
 JWT_EXPIRES_IN=30d\n`;
   }
-  
-  await fs.writeFile(path.join(projectPath, '.env.example'), content);
+
+  await fs.writeFile(path.join(projectPath, '.env'), content);
 }
 
 async function createGitIgnore(projectPath) {
@@ -373,10 +383,10 @@ curl http://localhost:3000/api/v1/health
 async function createServerFile(projectPath, answers) {
   const ext = answers.language;
   const filePath = path.join(projectPath, `server.${ext}`);
-  
+
   // For TypeScript, import app from './src/app.js'
   const importExtension = answers.language === 'ts' ? 'js' : ext;
-  
+
   const content = `import dotenv from 'dotenv';
 import app from './src/app.${importExtension}';
 
@@ -407,21 +417,24 @@ process.on('SIGTERM', () => {
   });
 });
 `;
-  
+
   await fs.writeFile(filePath, content);
 }
 
 async function createAppFile(projectPath, answers) {
   const ext = answers.language;
   const filePath = path.join(projectPath, 'src', `app.${ext}`);
-  
+
   // For TypeScript, use .js extensions in imports
   const importExtension = answers.language === 'ts' ? 'js' : ext;
-  
+
   let content = `import express from 'express';
 import { httpLogger } from './config/logger.${importExtension}';
 import healthRouter from './routes/v1/health.routes.${importExtension}';
+${answers.language === 'ts' || answers.security === 'jwt' ? "import authRouter from './routes/v1/auth.routes.js';" : ""}
 import errorMiddleware from './middlewares/error.middleware.${importExtension}';
+import dotenv from 'dotenv';
+dotenv.config();
 ${answers.database !== 'none' ? `import { createConnection } from './db/db-utils.${importExtension}';` : ''}
 
 const app = express();
@@ -460,7 +473,11 @@ app.use('/api/v1/health', healthRouter);
   if (answers.database !== 'none') {
     content += `
 // Database connection
-createConnection(process.env.DATABASE_URL)
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL environment variable is not set');
+}
+createConnection(databaseUrl)
   .then(conn => {
     console.log(\`✅ Connected to \${conn.type} database\`);
   })
@@ -476,7 +493,7 @@ app.use(errorMiddleware);
 
 export default app;
 `;
-  
+
   await fs.writeFile(filePath, content);
 }
 
@@ -542,11 +559,11 @@ export default logger;
 
 async function createHealthCheck(projectPath, answers) {
   const ext = answers.language;
-  
+
   // Controller
   const controllerPath = path.join(projectPath, 'src/controllers', `health.controller.${ext}`);
   let controllerContent = '';
-  
+
   if (answers.language === 'ts') {
     controllerContent = `import { Request, Response } from 'express';
 
@@ -568,13 +585,13 @@ export const healthCheck = (req: Request, res: Response) => {
   });
 };`;
   }
-  
+
   await fs.writeFile(controllerPath, controllerContent);
-  
+
   // Routes
   const routesPath = path.join(projectPath, 'src/routes/v1', `health.routes.${ext}`);
   let routesContent = '';
-  
+
   if (answers.language === 'ts') {
     routesContent = `import { Router } from 'express';
 import { healthCheck } from '../../controllers/health.controller.js';
@@ -594,16 +611,16 @@ router.get('/', healthCheck);
 
 export default router;`;
   }
-  
+
   await fs.writeFile(routesPath, routesContent);
 }
 
 async function createErrorMiddleware(projectPath, answers) {
   const ext = answers.language;
   const filePath = path.join(projectPath, 'src/middlewares', `error.middleware.${ext}`);
-  
+
   let content = '';
-  
+
   if (answers.language === 'ts') {
     content = `import { NextFunction, Request, Response } from 'express';
 
@@ -639,107 +656,188 @@ export default (err: ErrorWithStatus, req: Request, res: Response, next: NextFun
   });
 };`;
   }
-  
+
   await fs.writeFile(filePath, content);
 }
 
 async function createDbUtils(projectPath, answers) {
   const ext = answers.language;
   const filePath = path.join(projectPath, 'src/db', `db-utils.${ext}`);
-  
+
   let content = '';
-  
+
   if (answers.language === 'ts') {
-    content = `import { Connection } from 'mongoose';
-import { Pool } from 'pg';
-import { Connection as MySQLConnection } from 'mysql2/promise';
-import sqlite3 from 'sqlite3';
 
-interface DatabaseConnection {
-  type: string;
-  connection: Connection | Pool | MySQLConnection | sqlite3.Database;
-}
+    if (answers.database == 'mongodb') {
+      content = `
+    import { Connection } from 'mongoose';
+    import { Pool } from 'pg';
+    import { Connection as MySQLConnection } from 'mysql2/promise';
+    import sqlite3 from 'sqlite3';
+    interface DatabaseConnection {
+      type: string;
+      connection: Connection | Pool | MySQLConnection | sqlite3.Database;
+    }
+    
+    export const createConnection = async (url: string): Promise<DatabaseConnection> => {
+      try {
+        
+          const mongoose = await import('mongoose');
+          await mongoose.connect(url);
+          return { type: 'MongoDB', connection: mongoose.connection };
+        
+        
+      } catch (error: any) {
+        throw new Error(\`Database connection failed: \${error.message}\`);
+      }
+    };`
+    } else if (answers.database == 'postgres') {
+      content = `
+    import { Connection } from 'mongoose';
+    import { Pool } from 'pg';
+    import { Connection as MySQLConnection } from 'mysql2/promise';
+    import sqlite3 from 'sqlite3';
+     
+      
+      interface DatabaseConnection {
+        type: string;
+        connection: Connection | Pool | MySQLConnection | sqlite3.Database;
+      }
+      
+      export const createConnection = async (url: string): Promise<DatabaseConnection> => {
+        try {
+            const { Pool } = await import('pg');
+            const pool = new Pool({ connectionString: url });
+            await pool.connect();
+            return { type: 'PostgreSQL', connection: pool };
+         
+        } catch (error: any) {
+          throw new Error(\`Database connection failed: \${error.message}\`);
+        }
+      };
+     `
+    } else if (answers.database == "mysql") {
+      content = ` 
+    
+     import { Connection } from 'mongoose';
+    import { Pool } from 'pg';
+    import { Connection as MySQLConnection } from 'mysql2/promise';
+    import sqlite3 from 'sqlite3';
 
-export const createConnection = async (url: string): Promise<DatabaseConnection> => {
-  try {
-    if (url.startsWith('mongodb')) {
-      const mongoose = await import('mongoose');
-      await mongoose.connect(url);
-      return { type: 'MongoDB', connection: mongoose.connection };
+      interface DatabaseConnection {
+        type: string;
+        connection: Connection | Pool | MySQLConnection | sqlite3.Database;
+      }
+      
+      export const createConnection = async (url: string): Promise<DatabaseConnection> => {
+        try {
+          
+            const mysql = await import('mysql2/promise');
+            const connection = await mysql.createConnection(url);
+            return { type: 'MySQL', connection };
+          
+        } catch (error: any) {
+          throw new Error(\`Database connection failed: \${error.message}\`);
+        }
+      };
+      `
+    } else if (answers.database == "sqlite") {
+      content = `
+    import { Connection } from 'mongoose';
+    import { Pool } from 'pg';
+    import { Connection as MySQLConnection } from 'mysql2/promise';
+    import sqlite3 from 'sqlite3';
+    
+    interface DatabaseConnection {
+      type: string;
+      connection: Connection | Pool | MySQLConnection | sqlite3.Database;
     }
     
-    if (url.startsWith('postgres')) {
-      const { Pool } = await import('pg');
-      const pool = new Pool({ connectionString: url });
-      await pool.connect();
-      return { type: 'PostgreSQL', connection: pool };
-    }
-    
-    if (url.startsWith('mysql')) {
-      const mysql = await import('mysql2/promise');
-      const connection = await mysql.createConnection(url);
-      return { type: 'MySQL', connection };
-    }
-    
-    if (url.startsWith('sqlite')) {
-      const sqlite3 = await import('sqlite3');
-      const db = new sqlite3.Database(url.replace('sqlite://', ''));
-      return { type: 'SQLite', connection: db };
-    }
-    
-    throw new Error('Unsupported database type');
-  } catch (error: any) {
-    throw new Error(\`Database connection failed: \${error.message}\`);
-  }
-};`;
+    export const createConnection = async (url: string): Promise<DatabaseConnection> => {
+      try {
+               
+        if (url.startsWith('sqlite')) {
+          const sqlite3 = await import('sqlite3');
+          const db = new sqlite3.Database(url.replace('sqlite://', ''));
+          return { type: 'SQLite', connection: db };
+        }
+      } catch (error: any) {
+        throw new Error(\`Database connection failed: \${error.message}\`);
+      }
+    };
+      `
+    };
+
+
+
   } else {
-    content = `export const createConnection = async (url) => {
-  try {
-    if (url.startsWith('mongodb')) {
+
+    if (answers.database == 'mongodb') {
+      content = `
+      export const createConnection = async (url) => {
+        try {
       const mongoose = await import('mongoose');
       await mongoose.connect(url);
       return { type: 'MongoDB', connection: mongoose.connection };
+      } catch (error) {
+        throw new Error(\`Database connection failed: \${error.message}\`);
+      }
+    }`
+    } else if (answers.database == 'postgres') {
+      content = `
+      export const createConnection = async (url) => {
+        try {
+          const { Pool } = await import('pg');
+          const pool = new Pool({ connectionString: url });
+          await pool.connect();
+          return { type: 'PostgreSQL', connection: pool };
+      } catch (error) {
+        throw new Error(\`Database connection failed: \${error.message}\`);
+      }
     }
-    
-    if (url.startsWith('postgres')) {
-      const { Pool } = await import('pg');
-      const pool = new Pool({ connectionString: url });
-      await pool.connect();
-      return { type: 'PostgreSQL', connection: pool };
+     `
+    } else if (answers.database == "mysql") {
+      content = ` 
+      export const createConnection = async (url) => {
+        try {
+          const mysql = await import('mysql2/promise');
+          const connection = await mysql.createConnection(url);
+          return { type: 'MySQL', connection };
+      } catch (error) {
+        throw new Error(\`Database connection failed: \${error.message}\`);
+      }
     }
-    
-    if (url.startsWith('mysql')) {
-      const mysql = await import('mysql2/promise');
-      const connection = await mysql.createConnection(url);
-      return { type: 'MySQL', connection };
+      `
+    } else if (answers.database == "sqlite") {
+      content = `
+      export const createConnection = async (url) => {
+        try {
+          const sqlite3 = await import('sqlite3');
+          const db = new sqlite3.Database(url.replace('sqlite://', ''));
+          return { type: 'SQLite', connection: db };
+      } catch (error) {
+        throw new Error(\`Database connection failed: \${error.message}\`);
+      }
     }
-    
-    if (url.startsWith('sqlite')) {
-      const sqlite3 = await import('sqlite3');
-      const db = new sqlite3.Database(url.replace('sqlite://', ''));
-      return { type: 'SQLite', connection: db };
+      `
     }
-    
-    throw new Error('Unsupported database type');
-  } catch (error) {
-    throw new Error(\`Database connection failed: \${error.message}\`);
+
   }
-};`;
-  }
-  
+
   await fs.writeFile(filePath, content);
 }
 
 async function createSecurityFiles(projectPath, answers) {
   const ext = answers.language;
-  
+
   if (answers.security === 'jwt') {
     // Auth middleware
     const middlewarePath = path.join(projectPath, 'src/middlewares', `auth.middleware.${ext}`);
     let middlewareContent = '';
-    
+
     if (answers.language === 'ts') {
-      middlewareContent = `import jwt from 'jsonwebtoken';
+      middlewareContent = `
+      import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import logger from '../config/logger.js';
 
@@ -786,134 +884,51 @@ export const authenticateJWT = (req, res, next) => {
   }
 };`;
     }
-    
+
     await fs.writeFile(middlewarePath, middlewareContent);
 
     // Auth controller
     const controllerPath = path.join(projectPath, 'src/controllers', `auth.controller.${ext}`);
     let controllerContent = '';
-    
-    if (answers.language === 'ts') {
-      controllerContent = `import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-${answers.database !== 'none' ? `// Import your User model here
-// import User from '../models/user.model.${ext}';` : ''}
 
-export const login = async (req: Request, res: Response) => {
-  try {
-    const { email, password } = req.body;
-    
-    // In a real app, you would fetch user from database
-    // const user = await User.findOne({ email });
-    const mockUser = {
-      id: '1',
-      email: 'user@example.com',
-      password: await bcrypt.hash('password123', 10)
-    };
-    
-    // Check if user exists
-    if (email !== mockUser.email) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-    
-    // Verify password
-    const isMatch = await bcrypt.compare(password, mockUser.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-    
-    // Create JWT token
-    const token = jwt.sign(
-      { userId: mockUser.id, email: mockUser.email },
-      process.env.JWT_SECRET as string,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
-    
-    res.json({ token });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-};`;
-    } else {
-      controllerContent = `import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-${answers.database !== 'none' ? `// Import your User model here
-// import User from '../models/user.model.${ext}';` : ''}
 
-export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    
-    // In a real app, you would fetch user from database
-    // const user = await User.findOne({ email });
-    const mockUser = {
-      id: '1',
-      email: 'user@example.com',
-      password: await bcrypt.hash('password123', 10)
-    };
-    
-    // Check if user exists
-    if (email !== mockUser.email) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-    
-    // Verify password
-    const isMatch = await bcrypt.compare(password, mockUser.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-    
-    // Create JWT token
-    const token = jwt.sign(
-      { userId: mockUser.id, email: mockUser.email },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
-    
-    res.json({ token });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-};`;
-    }
-    
     await fs.writeFile(controllerPath, controllerContent);
 
     // Auth routes
     const routesPath = path.join(projectPath, 'src/routes/v1', `auth.routes.${ext}`);
     await fs.writeFile(routesPath, `import { Router } from 'express';
-import { login } from '../../controllers/auth.controller.js';
+//import { login } from '../../controllers/auth.controller.js';
+//import { authMiddleware } from '../../controllers/auth.middleware.js';
 
 const router = Router();
 
-router.post('/login', login);
+//router.post('/login',authMiddleware, login);
 
-export default router;
-`);
+export default router;`);
 
     // Update app file
     const appFilePath = path.join(projectPath, 'src', `app.${ext}`);
     let appContent = await fs.readFile(appFilePath, 'utf-8');
-    
+
     appContent = appContent.replace(
-      'import healthRouter from \'./routes/v1/health.routes',
-      `import healthRouter from './routes/v1/health.routes.js';\nimport authRouter from './routes/v1/auth.routes.js';`
+      'import healthRouter from \'./routes/v1/health.routes.js;',
+      `import healthRouter from './routes/v1/health.routes.js';\n
+        import authRouter from './routes/v1/auth.routes.js';`
     );
-    
+
     appContent = appContent.replace(
       'app.use(\'/api/v1/health\', healthRouter);',
       `app.use('/api/v1/health', healthRouter);\napp.use('/api/v1/auth', authRouter);`
     );
-    
+
     await fs.writeFile(appFilePath, appContent);
   }
 }
 
 async function installDependencies(projectPath, answers) {
-  await execa('npm', ['install'], { 
-    cwd: projectPath, 
-    stdio: 'inherit' 
+  await execa('npm', ['install'], {
+    cwd: projectPath,
+    stdio: 'inherit'
   });
 }
 
