@@ -3,7 +3,6 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import fs from 'fs-extra';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { execa } from 'execa';
 import { createSpinner } from 'nanospinner';
 import figlet from 'figlet';
@@ -31,7 +30,7 @@ async function displayAnimatedBanner() {
     await new Promise(resolve => setTimeout(resolve, 500));
     spinner.text = gradients[i % gradients.length](
       figlet.textSync('CREATE-SERVER-STARTUP', {
-        font: 'small',
+        font: 'standard',
         horizontalLayout: 'default',
         verticalLayout: 'default',
         width: 100,
