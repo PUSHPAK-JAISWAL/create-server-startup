@@ -16,7 +16,7 @@
     "backend",
     "generator"
   ],
-  "author": "stakbase 2k25",
+  "author": "Pushpak Jaiswal , Rohan Ghuge , Varun Tipkari @stakbase2k25",
   "license": "MIT",
   "type": "module",
   "dependencies": {
