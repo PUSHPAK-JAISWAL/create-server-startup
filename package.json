@@ -31,5 +31,9 @@
   },
   "engines": {
     "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stakbase/create-server-startup.git"
   }
 }
