@@ -10,8 +10,6 @@ import figlet from 'figlet';
 import gradient from 'gradient-string';
 import ora from 'ora';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 // Enhanced animated ASCII art
 async function displayAnimatedBanner() {
   const gradients = [
