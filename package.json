@@ -1,0 +1,35 @@
+{
+  "name": "create-server-startup",
+  "version": "1.0.0",
+  "description": "CLI tool to generate production-ready Node.js servers",
+  "bin": {
+    "create-server-startup": "./bin/create-server-startup.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node",
+    "server",
+    "cli",
+    "express",
+    "backend",
+    "generator"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "execa": "^9.6.0",
+    "figlet": "^1.8.2",
+    "fs-extra": "^11.3.0",
+    "gradient-string": "^3.0.0",
+    "inquirer": "^12.8.2",
+    "nanospinner": "^1.2.2",
+    "ora": "^8.2.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
