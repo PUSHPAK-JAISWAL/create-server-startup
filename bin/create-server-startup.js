@@ -6,17 +6,24 @@ import path from 'path';
 import { execa } from 'execa';
 import { createSpinner } from 'nanospinner';
 import figlet from 'figlet';
-import gradient from 'gradient-string';
+import {
+  morning,
+  passion,
+  cristal,
+  teen,
+  mind,
+  pastel
+} from 'gradient-string';
 import ora from 'ora';
 
 // Enhanced animated ASCII art
 async function displayAnimatedBanner() {
   const gradients = [
-    gradient.morning,
-    gradient.passion,
-    gradient.cristal,
-    gradient.teen,
-    gradient.mind
+    morning,
+    passion,
+    cristal,
+    teen,
+    mind
   ];
 
   const spinner = ora({
@@ -28,18 +35,24 @@ async function displayAnimatedBanner() {
   // Create animation sequence
   for (let i = 0; i < 5; i++) {
     await new Promise(resolve => setTimeout(resolve, 500));
-    spinner.text = gradients[i % gradients.length](
+
+    // get current terminal width (fallback to 80 if undefined)
+    const cols = process.stdout.columns || 80;
+    // cap at 150 so you never wrap more than your “ideal” width
+    const width = Math.min(cols, 150);
+
+    spinner.text = pastel(
       figlet.textSync('CREATE-SERVER-STARTUP', {
-        font: 'standard',
+        font: 'Standard',
         horizontalLayout: 'default',
         verticalLayout: 'default',
-        width: 100,
+        width: width,
         whitespaceBreak: true
       })
     );
   }
 
-  spinner.succeed(gradient.passion('\n🚀 Create a production-ready Node.js server in seconds!\n'));
+  spinner.succeed(passion('\n🚀 Create a production-ready Node.js server in seconds!\n'));
 }
 
 const questions = [
