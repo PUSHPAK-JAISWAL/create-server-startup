@@ -11,7 +11,7 @@ A powerful CLI tool by **Stakbase** to **scaffold production‑ready Node.js bac
 - Optionally enable **security** (Helmet, CORS, Rate Limiting, JWT Auth)  
 - Auto‑generates:
   - Project folder structure
-  - `.env.example` file
+  - `.env` file
   - `README.md`, `.gitignore`, `package.json`
   - Health‑check endpoint
   - Logger & error middleware  
@@ -31,6 +31,11 @@ Then simply run:
 
 ```bash
 create-server-startup
+```
+
+or simply run:
+```bash
+npx create-server-startup
 ```
 
 and follow the interactive prompts!
@@ -177,7 +182,6 @@ We love contributions! To get started:
 
 ## 📄 License
 
-MIT © [Stakbase](https://stakbase.com)
+MIT © [Stakbase]
 
-```
 
