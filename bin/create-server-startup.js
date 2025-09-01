@@ -42,7 +42,7 @@ async function displayAnimatedBanner() {
     const width = Math.min(cols, 150);
 
     spinner.text = pastel(
-      figlet.textSync('CREATE-SERVER-STARTUP', {
+      figlet.textSync('Welcome to TechAmigo', {
         font: 'Standard',
         horizontalLayout: 'default',
         verticalLayout: 'default',

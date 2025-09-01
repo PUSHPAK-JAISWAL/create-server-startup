@@ -1,20 +1,20 @@
 # create-server-startup
 
-A powerful CLI tool by **Stakbase** to **scaffold production‑ready Node.js backend projects** in seconds — with support for JavaScript or TypeScript, popular databases, and JWT‑based security options.
+A powerful CLI tool by **TechAmigo** to **scaffold production‑ready Node.js backend projects** in seconds — with support for JavaScript or TypeScript, popular databases, and JWT‑based security options.
 
 ---
 
 ## 🌟 Features
 
-- Choose between **JavaScript** or **TypeScript**  
-- Select popular **databases** (MongoDB, PostgreSQL, MySQL, SQLite)  
-- Optionally enable **security** (Helmet, CORS, Rate Limiting, JWT Auth)  
+- Choose between **JavaScript** or **TypeScript**
+- Select popular **databases** (MongoDB, PostgreSQL, MySQL, SQLite)
+- Optionally enable **security** (Helmet, CORS, Rate Limiting, JWT Auth)
 - Auto‑generates:
   - Project folder structure
   - `.env.example` file
   - `README.md`, `.gitignore`, `package.json`
   - Health‑check endpoint
-  - Logger & error middleware  
+  - Logger & error middleware
 - Pre‑configured with `nodemon`, `winston`, `dotenv`, and more
 
 ---
@@ -25,7 +25,7 @@ A powerful CLI tool by **Stakbase** to **scaffold production‑ready Node.js bac
 
 ```bash
 npm install -g create-server-startup
-````
+```
 
 Then simply run:
 
@@ -40,7 +40,7 @@ and follow the interactive prompts!
 ## 🛠️ Setup Locally (Development/Contributing)
 
 1. **Fork** the repo on GitHub:
-   [https://github.com/stakbase/create-server-startup](https://github.com/stakbase/create-server-startup)
+   [https://github.com/TechAmigo2k25/create-server-startup](https://github.com/TechAmigo2k25/create-server-startup)
 
 2. **Clone** your fork:
 
@@ -73,10 +73,10 @@ create-server-startup
 
 Setting up a new backend often means repeating boilerplate:
 
-* Folder structure
-* Health checks, loggers, error handlers
-* Env & Git configuration
-* Security middleware & DB connections
+- Folder structure
+- Health checks, loggers, error handlers
+- Env & Git configuration
+- Security middleware & DB connections
 
 **`create-server-startup` automates all of that**, so you can dive straight into building features.
 
@@ -131,12 +131,13 @@ my-server/
 
 3. **Start the server**
 
-   * **TypeScript**:
+   - **TypeScript**:
 
      ```bash
      npm run dev
      ```
-   * **JavaScript**:
+
+   - **JavaScript**:
 
      ```bash
      npm start
@@ -152,7 +153,7 @@ my-server/
 
 ## 🐛 Issues & 💡 Features
 
-Got a bug or idea? Please [open an issue](https://github.com/stakbase/create-server-startup/issues).
+Got a bug or idea? Please [open an issue](https://github.com/TechAmigo2k25/create-server-startup/issues).
 
 ---
 
@@ -166,18 +167,21 @@ We love contributions! To get started:
    ```bash
    git checkout -b feature/awesome-feature
    ```
+
 3. Commit your changes:
 
    ```bash
    git commit -m "Add awesome feature"
    ```
+
 4. Push and open a PR
 
 ---
 
 ## 📄 License
 
-MIT © [Stakbase](https://stakbase.com)
+MIT © [TechAmigo]
 
 ```
 
+```
