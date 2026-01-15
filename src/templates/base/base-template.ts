@@ -61,7 +61,7 @@ export class BaseTemplate implements TemplateGenerator {
       version: '1.0.0',
       type: 'module' as const,
       description: 'Production-ready Node.js server',
-      main: config.language === 'ts' ? 'dist/server.js' : 'server.js',
+      main: config.language === 'ts' ? 'server.js' : 'server.js',
       scripts: this.getPackageScripts(config),
       dependencies: this.getDependencies(config),
       devDependencies: this.getDevDependencies(config),
@@ -82,8 +82,8 @@ export class BaseTemplate implements TemplateGenerator {
       return {
         ...baseScripts,
         build: 'tsc',
-        start: 'node dist/server.js',
-        dev: 'nodemon --watch src --ext ts --exec "tsx src/server.ts"',
+        start: "nodemon --watch src --ext ts --exec \"tsx server.ts\"",
+        dev: 'nodemon --watch src --ext ts --exec "tsx server.ts"',
         'dev:watch': 'tsc --watch',
         lint: 'eslint src --ext .ts',
         'type-check': 'tsc --noEmit'
@@ -358,34 +358,9 @@ const server = app.listen(PORT, () => {
   console.log(\`📝 Logs: \${NODE_ENV === 'production' ? 'logs/' : 'console'}\`);
 });
 
-// Graceful shutdown
-const shutdown = (signal: string) => {
-  console.log(\`\\n🛑 Received \${signal}. Shutting down gracefully...\`);
-  server.close(() => {
-    console.log('💤 Server stopped');
-    process.exit(0);
-  });
 
-  // Force shutdown after 10 seconds
-  setTimeout(() => {
-    console.error('⏰ Forcing shutdown after 10 seconds...');
-    process.exit(1);
-  }, 10000);
-};
 
-process.on('SIGINT', () => shutdown('SIGINT'));
-process.on('SIGTERM', () => shutdown('SIGTERM'));
 
-// Handle unhandled rejections
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
-
-// Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  shutdown('uncaughtException');
-});
 `;
     await fs.writeFile(filePath, content);
   }

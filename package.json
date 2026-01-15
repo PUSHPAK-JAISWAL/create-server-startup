@@ -1,31 +1,16 @@
 {
-  "name": "create-server-cli",
-  "version": "2.0.0",
-  "description": "CLI tool to create production-ready Node.js servers with JavaScript or TypeScript",
-  "type": "module",
+  "name": "create-server-startup",
+  "version": "1.0.0",
+  "type": "module",  
   "main": "dist/index.js",
- "bin": {
+  "bin": {
     "create-server-startup": "./bin/create-server-startup.js"
   },
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
-    "start": "node dist/index.js",
-    "lint": "eslint src --ext .ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublishOnly": "npm run build"
+    "start": "node dist/index.js"
   },
-  "keywords": [
-    "cli",
-    "node",
-    "express",
-    "typescript",
-    "javascript",
-    "boilerplate",
-    "starter"
-  ],
-  "author": "Your Name",
-  "license": "MIT",
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^11.0.0",
@@ -37,20 +22,11 @@
     "nanospinner": "^1.1.0"
   },
   "devDependencies": {
-    "@types/fs-extra": "^11.0.1",
-    "@types/inquirer": "^9.0.3",
     "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.0.0",
     "tsx": "^3.12.0",
     "typescript": "^5.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-   "repository": {
-    "type": "git",
-    "url": "https://github.com/stakbase/create-server-startup.git"
   }
 }

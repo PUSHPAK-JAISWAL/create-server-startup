@@ -17,22 +17,29 @@ export class FileGenerator {
     
     await fs.copy(sourceDir, destDir);
     
-    // Process template files if needed
-    const files = await fs.readdir(destDir, { recursive: true });
+    // Get all files recursively
+    const getAllFiles = async (dir: string): Promise<string[]> => {
+      const entries = await fs.readdir(dir, { withFileTypes: true });
+      const files = await Promise.all(entries.map(async (entry) => {
+        const fullPath = path.join(dir, entry.name);
+        return entry.isDirectory() ? getAllFiles(fullPath) : fullPath;
+      }));
+      return files.flat();
+    };
+    
+    const files = await getAllFiles(destDir);
     
     for (const file of files) {
-      const filePath = path.join(destDir, file);
-      if ((await fs.stat(filePath)).isFile()) {
-        let content = await fs.readFile(filePath, 'utf-8');
-        
-        // Replace template variables
-        for (const [key, value] of Object.entries(context)) {
-          const placeholder = `{{${key}}}`;
-          content = content.replace(new RegExp(placeholder, 'g'), String(value));
-        }
-        
-        await fs.writeFile(filePath, content);
+      const relativePath = path.relative(destDir, file);
+      let content = await fs.readFile(file, 'utf-8');
+      
+      // Replace template variables
+      for (const [key, value] of Object.entries(context)) {
+        const placeholder = `{{${key}}}`;
+        content = content.replace(new RegExp(placeholder, 'g'), String(value));
       }
+      
+      await fs.writeFile(file, content);
     }
   }
 }

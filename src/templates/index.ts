@@ -1,7 +1,7 @@
 import { TemplateContext } from '../commands/types.js';
 import { BaseTemplate } from './base/base-template.js';
-import { JavaScriptTemplate } from './javascript/javascript-template.js';
-import { TypeScriptTemplate } from './typescript/typescript-template.js';
+import { JavaScriptTemplate } from './javascript/javascript-templates.js';
+import { TypeScriptTemplate } from './typescript/typescript-templates.js';
 
 export async function createProjectStructure(projectPath: string, config: any) {
   const context: TemplateContext = {

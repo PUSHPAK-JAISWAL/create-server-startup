@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-// Enable source map support for debugging
-require('source-map-support').register();
+
 
 // Handle uncaught errors gracefully
 process.on('unhandledRejection', (error) => {
@@ -14,5 +13,4 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
-// Import compiled TypeScript
-require('../dist/index.js');
+import '../dist/index.js';
